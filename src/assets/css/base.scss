@@ -1,0 +1,39 @@
+@tailwind base;
+
+html {
+  @apply font-sans antialiased;
+
+  font-size: 16px;
+}
+
+@tailwind components;
+
+.proto-box {
+  @apply p-2 font-medium text-xs border-2 border-fuchsia-500 rounded-lg;
+
+  @at-root pre#{&}, & pre {
+    @apply text-gray-800 bg-gray-100;
+  }
+
+  button {
+    @apply px-2 py-1 bg-gray-300;
+  }
+}
+
+@tailwind utilities;
+
+.text-shadow {
+  text-shadow: 1px 1px #0008;
+}
+
+.bg-none {
+  background: none;
+}
+
+.top-full {
+  top: 100%;
+}
+
+.prepend-zws::before {
+  content: '\200B';
+}
