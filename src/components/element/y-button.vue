@@ -1,19 +1,32 @@
 <template lang="pug">
-button(:class="['text-white outline-none focus:outline-none flex flex-none items-center', sizeStyleCom]" @click.stop="$event => handler($event)")
-  slot
+div(class="relative")
+  button(
+    :disable="disableRef"
+    :class="['relative text-white outline-none focus:outline-none flex flex-none items-center', {'opacity-50': disableRef}, styleComputed]"
+    @click="$event => handler($event)"
+  )
+    div(v-if="busyRef" class="absolute top-0 bottom-0 left-0 right-0 z-1 opacity-100 flex justify-center items-center")
+      y-spinner(class="w-4 h-4")
+    slot
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, PropType} from 'vue'
+import {computed, defineComponent, PropType, reactive} from 'vue'
+
+import YSpinner from './y-spinner.vue'
 
 export default defineComponent({
+  components: {
+    YSpinner,
+  },
+
   props: {
     kind: {
-      type: String as PropType < 'primary' | 'warn' | 'error' | 'success' > ,
+      type: String as PropType < 'primary' | 'warn' | 'error' | 'success' >,
       default: 'primary',
     },
     size: {
-      type: String as PropType < 'xs' | 'sm' | 'md' | 'lg' > ,
+      type: String as PropType < 'xs' | 'sm' | 'md' | 'lg' >,
       default: 'md',
     },
     busy: {
@@ -24,14 +37,18 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
-    click: {
-      type: Function,
-      default: () => null,
-    },
   },
 
-  setup (props) {
-    const sizeStyleCom = computed(() => [
+  setup (props, {attrs}) {
+    const state = reactive({
+      busy: false,
+      disable: false,
+    })
+
+    const busyRef = computed(() => props.busy || state.busy)
+    const disableRef = computed(() => props.disable || state.disable || busyRef.value)
+
+    const styleComputed = computed(() => [
       {
         xs: 'px-2 py-1 text-xs rounded-sm',
         sm: 'px-3 py-1 text-sm rounded',
@@ -44,14 +61,34 @@ export default defineComponent({
         error: 'bg-red-500 hover:bg-red-400',
         success: 'bg-blue-500 hover:bg-blue-400',
       }[props.kind],
-    ])
+      {
+        default: 'cursor-pointer',
+        busy: 'cursor-wait',
+        disable: 'cursor-not-allowed',
+      }[busyRef.value ? 'busy' : disableRef.value ? 'disable' : 'default'],
+    ].filter(it => Boolean(it)))
 
     const handler = (e: any) => {
-
+      if (attrs.onClick) {
+        const ret = (<any>attrs.onClick)()
+        if (ret instanceof Promise) {
+          state.busy = true
+          ret.then(() => state.busy = false,
+            error => {
+              state.busy = false
+              return Promise.reject(error)
+            })
+        } else {
+          (<any>attrs.onClick)(e)
+        }
+      }
     }
 
     return {
-      sizeStyleCom,
+      styleComputed,
+
+      busyRef,
+      disableRef,
 
       handler,
     }
