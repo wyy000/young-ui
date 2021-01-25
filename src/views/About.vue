@@ -1,8 +1,13 @@
 <template lang="pug">
 div(class="w-page mx-auto divide-y flex flex-col flex-none justify-around")
+  y-card
+    div size: xs sm md lg
+    div kind: primary warn error success
+    div disable: true false
+    div busy: true false
   div(class="py-4 flex flex-col")
     div(class="pb-2")
-      y-button(kind="primary" size="xs" @click="primaryShow = !primaryShow") primary
+      y-button(kind="primary" size="xs" @click="handler") primary
     transition(
       enter-active-class="transition-all duration-500 ease-in-out"
       leave-active-class="transition-all duration-500 ease-in-out"
@@ -81,10 +86,12 @@ div(class="w-page mx-auto divide-y flex flex-col flex-none justify-around")
 import {computed, reactive, toRefs} from 'vue'
 
 import YButton from '@/components/element/y-button.vue'
+import YCard from '@/components/element/y-card.vue'
 
 export default {
   components: {
     YButton,
+    YCard,
   },
 
   setup () {
@@ -100,9 +107,22 @@ export default {
       // return (state.primaryRef)
     })
 
+    const handler = () => {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve()
+        }, 1200)
+      })
+        .then(() => {
+          state.primaryShow = !state.primaryShow
+        })
+    }
+
     return {
       ...toRefs(state),
       primaryCom,
+
+      handler,
     }
   }
 }
