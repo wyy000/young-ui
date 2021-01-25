@@ -1,0 +1,4 @@
+<template lang="pug">
+svg(viewBox="0 0 24 24" fill="currentColor" class="animate-spin")
+  path(d="M12 3a9 9 0 0 1 9 9h-2a7 7 0 0 0-7-7V3z")
+</template>
