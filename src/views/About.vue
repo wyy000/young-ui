@@ -7,7 +7,7 @@ div(class="w-page mx-auto divide-y flex flex-col flex-none justify-around")
     div busy: true false
   div(class="py-4 flex flex-col")
     div(class="pb-2")
-      y-button(kind="primary" size="xs" @click="handler") primary
+      y-button(:busy="primaryBusy" kind="primary" size="xs" @click="handler") primary
     transition(
       enter-active-class="transition-all duration-500 ease-in-out"
       leave-active-class="transition-all duration-500 ease-in-out"
@@ -20,7 +20,7 @@ div(class="w-page mx-auto divide-y flex flex-col flex-none justify-around")
           pre(class="p-2 bg-coolGray-700 rounded-md text-sm text-coolGray-200") 1  y-button(kind="primary" size="xs" @click="handler") primary
   div(class="py-4 flex flex-col overflow-auto")
     div(class="pb-2")
-      y-button(kind="warn" size="sm" @click="warnShow = !warnShow")
+      y-button(kind="warn" size="sm" @click="warnHandler")
         svg(fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5 mr-1")
           path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z")
         span warn
@@ -101,6 +101,7 @@ export default {
       warnShow: false,
       errorShow: false,
       successShow: false,
+      primaryBusy: false,
     })
 
     const primaryCom = computed(() => {
@@ -108,9 +109,11 @@ export default {
     })
 
     const handler = () => {
+      state.primaryBusy = true
       return new Promise((resolve) => {
         setTimeout(() => {
           resolve()
+          state.primaryBusy = false
         }, 1200)
       })
         .then(() => {
@@ -118,11 +121,16 @@ export default {
         })
     }
 
+    const warnHandler = () => {
+      state.warnShow = !state.warnShow
+    }
+
     return {
       ...toRefs(state),
       primaryCom,
 
       handler,
+      warnHandler,
     }
   }
 }

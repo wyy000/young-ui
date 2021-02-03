@@ -3,7 +3,7 @@ div(class="relative")
   button(
     :disable="disableRef"
     :class="['relative text-white outline-none focus:outline-none flex flex-none items-center', {'opacity-50': disableRef}, styleComputed]"
-    @click="$event => handler($event)"
+    @click="$emit('click')"
   )
     div(v-if="busyRef" class="absolute top-0 bottom-0 left-0 right-0 z-1 opacity-100 flex justify-center items-center")
       y-spinner(class="w-4 h-4")
@@ -38,6 +38,8 @@ export default defineComponent({
       default: false,
     },
   },
+
+  emits: ['click'],
 
   setup (props, {attrs}) {
     const state = reactive({
