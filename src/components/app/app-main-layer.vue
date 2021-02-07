@@ -3,7 +3,7 @@ app-aside
   template(#aside)
     div(class="h-full flex flex-col items-center justify-center")
       h1(class="text-lg") Young UI
-      span(class="text-xs text-coolGray-500") v1.0.1
+      span(class="text-xs text-coolGray-500") v0.1.6
   app-header(class="flex")
     div(class="flex-1 flex items-center justify-between")
       div(class="flex items-center")
@@ -18,7 +18,7 @@ app-aside
   div(class="reactive")
     router-view
 app-footer
-  div(class="text-center text-coolGray-500") 版本@1.0.1
+  div(class="text-center text-coolGray-500") 版本@0.1.6
 </template>
 
 <script>
