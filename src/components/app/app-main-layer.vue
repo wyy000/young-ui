@@ -3,7 +3,7 @@ app-aside
   template(#aside)
     div(class="h-full flex flex-col items-center justify-center")
       h1(class="text-lg") Young UI
-      span(class="text-xs text-coolGray-500") v0.1.7
+      span(class="text-xs text-coolGray-500") v0.1.8
   app-header(class="flex")
     div(class="flex-1 flex items-center justify-between")
       div(class="flex items-center")
