@@ -1,8 +1,9 @@
 <template lang="pug">
 app-aside
   template(#aside)
-    div(class="h-full flex items-center justify-center")
+    div(class="h-full flex flex-col items-center justify-center")
       h1(class="text-lg") Young UI
+      span(class="text-xs text-coolGray-500") v1.0.1
   app-header(class="flex")
     div(class="flex-1 flex items-center justify-between")
       div(class="flex items-center")
