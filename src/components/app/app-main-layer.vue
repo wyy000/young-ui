@@ -1,7 +1,8 @@
 <template lang="pug">
 app-aside
   template(#aside)
-    div 导航
+    div(class="h-full border-r border-emerald-500 text-center")
+      router-link(to="/documents/table") table
   app-header(class="flex")
     div(class="flex-1 flex items-center justify-between")
       div(class="flex items-center")
