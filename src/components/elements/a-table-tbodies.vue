@@ -1,40 +1,53 @@
 <template lang="pug">
-div(class="table_box h-full w-full overflow-auto")
-  div(class="absolute top-0 left-0 w-full border-t border-white z-30")
-  div(class="absolute bottom-0 left-0 w-full border-t z-30")
+div(:class="['h-full w-full overflow-auto', {'table_box': hoverType === 'cell', 'border-l': hoverType === 'row'}]")
+  div(v-if="hoverType === 'cell'" class="absolute top-0 left-0 w-full border-t border-white z-30")
+  //div(class="absolute bottom-0 left-0 w-full border-t z-30")
+  // IE浏览器 thead.slot高度不一致，滚动下边框定位元素
+  //div(class="thead_border absolute bottom-0 left-0 h-0 w-full border-t z-30")
   table(:class="['w-full table-auto', hoverType ? 'hover-' + hoverType : '']")
     colgroup
       col(v-for="(col, idx) of meta.columns" :key="idx" :style="{width: col.width ? `${col.width}px` : 'auto'}")
 
     thead
       tr
-        td(v-for="(col, idx) of meta.columns" :key="idx" :col="col" :class="[{'middle_child': idx !== 0 && idx !== meta.columns.length - 1}, col.fixed && `thead_fixed_${col.fixed}`]")
+        td(v-for="(col, idx) of theadColumnsRef" :key="idx" :col="col"
+          :class="[{'middle_child': idx !== 0 && idx !== theadColumnsRef.length - 1}, col.fixed && `thead_fixed_${col.fixed}`]")
           div(class="z-0")
-            slot(v-if="col.titleSlot" :name="col.titleSlot")
-            div(v-else class="py-2") {{col.title}}
+            template(v-if="!col.actions")
+              slot(v-if="col.titleSlot" :name="col.titleSlot")
+              div(v-else class="py-2") {{col.title}}
+            template(v-else)
+              slot(v-if="col.theadSlot" :name="col.theadSlot")
+              div(v-else class="py-2") 操作
 
     tbody(v-for="(sections, idx) in tbodiesData")
+      // tbody-title
       tr(v-if="sections.name || sections.slot")
-        th(:colspan="meta.columns.length")
+        th(:colspan="theadColumnsRef.length")
           slot(v-if="sections.slot" :name="sections.slot" :tbodies="sections")
           template(v-else-if="sections.name") {{sections.name}}
+      //tbody-content
       tr(v-for="(row, rIdx) of sections.data" :key="rIdx")
         td(v-for="(col, cIdx) of meta.columns" :key="cIdx" :class="['h-full', col.fixed && `fixed_${col.fixed}`]")
           div(class="h-full w-full")
             slot(v-if="col.slot" :name="col.slot" :row="row" :col="col")
             template(v-else) {{row[col.prop]}}
+        td(v-if="meta.actions" :class="['h-full', meta.actions.fixed && `fixed_${meta.actions.fixed}`]")
+          div(class="h-full w-full")
+            slot(name="tbody-actions" :row="row")
+      // tbody-empty
       tr(v-if="tbodiesData.length > 1 && idx !== tbodiesData.length - 1" class="space-row bg-white")
-        td(:colspan="meta.columns.length")
+        td(:colspan="theadColumnsRef.length")
           div(class="p-2")
 
     tfoot(v-if="total !== null")
       tr
-        td(:colspan="meta.columns.length")
+        td(:colspan="theadColumnsRef.length")
           a-table-paging(:total="total" :page.sync="pageRef" :page-size="pageSize" class="z-0")
 </template>
 
 <script>
-import {computed} from 'vue'
+import {computed, nextTick, watch} from 'vue'
 
 import ATablePaging from '@/components/elements/a-table-paging'
 
@@ -91,14 +104,26 @@ export default {
       set: value => value !== props.page && emit('update:page', value),
     })
 
+    const theadColumnsRef = computed(() => props.meta.columns.concat([{...props.meta.actions, actions: true}] ?? []))
+
+    // IE浏览器 thead.slot高度不一致，滚动下边框问题(fix: 滚动条问题)
+    /*watch(() => props.meta, async (value) => {
+      await nextTick()
+      const tr = document.getElementsByTagName('thead')[0]
+      const dom = document.getElementsByClassName('thead_border')[0]
+      dom.style.top = tr.offsetHeight - 1 + 'px'
+      await nextTick()
+    }, {immediate: true})*/
+
     return {
+      theadColumnsRef,
       pageRef,
       tbodiesData,
     }
   }
 }
 
-// TODO 指定首列序列号,添加demo操作,z-index值覆盖问题,外层边框1px问题...背景色问题
+// fix: z-index值覆盖问题...背景色问题 ??
 </script>
 
 <style scoped lang="scss">
@@ -227,7 +252,7 @@ table.hover-row {
 
   td, th {
     &:first-child {
-      border-left: 1px solid #e4e4e7;
+      border-left: 1px solid white;
     }
 
     &:last-child {
@@ -259,7 +284,7 @@ table.hover-row {
         position: absolute;
         top: 0;
         right: 0;
-        left: -1px;
+        left: 0;
         bottom: -1px;
         background: #e4e4e7;
         z-index: -20;
@@ -348,7 +373,7 @@ table.hover-row {
       position: absolute;
       top: -1px;
       right: -1px;
-      left: -1px;
+      left: 0;
       bottom: 0;
       background: #e4e4e7;
       z-index: -20;

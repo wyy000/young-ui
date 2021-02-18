@@ -2,5 +2,5 @@
 //div
 //  router-link(to="/") Home |
 //  router-link(to="/about") About
-router-view.h-full
+router-view
 </template>

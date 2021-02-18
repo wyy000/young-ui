@@ -70,7 +70,7 @@ export default defineComponent({
       }[busyRef.value ? 'busy' : disableRef.value ? 'disable' : 'default'],
     ].filter(it => Boolean(it)))
 
-    const handler = (e: any) => {
+    /*const handler = (e: any) => {
       if (attrs.onClick) {
         const ret = (<any>attrs.onClick)()
         if (ret instanceof Promise) {
@@ -84,7 +84,7 @@ export default defineComponent({
           (<any>attrs.onClick)(e)
         }
       }
-    }
+    }*/
 
     return {
       styleComputed,
@@ -92,7 +92,7 @@ export default defineComponent({
       busyRef,
       disableRef,
 
-      handler,
+      // handler,
     }
   }
 })
