@@ -1,20 +1,17 @@
 <template lang="pug">
-div(class="relative mt-6 mb-16 px-10")
-  div(class="relative w-page" style="height: 500px;")
-    div(class="absolute top-0 left-0 w-full border-t border-white z-30")
-    div(class="absolute top-0 left-0 bottom-0 border-l z-30")
-    div(class="h-full w-full overflow-auto")
-      a-table-tbodies(:meta="meta" :data="initData" :tbodies="tbodies" hover-type="cell")
-        template(#name="{row}")
-          h4 {{row.name}}
-          div(class="text-coolGray-500 text-sm") {{row.description}}
-        template(v-for="(sec, idx) of tbodies" v-slot:[sec.slot]="{tbodies}")
-          div( class="flex justify-center items-center")
-            svg(viewBox="0 0 24 24" width="18" height="18")
-              path(fill="none" d="M0 0h24v24H0z")
-              path(d="M10.9 2.1l9.899 1.415 1.414 9.9-9.192 9.192a1 1 0 0 1-1.414 0l-9.9-9.9a1 1 0 0 1 0-1.414L10.9 2.1zm.707 2.122L3.828 12l8.486 8.485 7.778-7.778-1.06-7.425-7.425-1.06zm2.12 6.364a2 2 0 1 1 2.83-2.829 2 2 0 0 1-2.83 2.829z")
-            div(class="p-1") {{tbodies.name}}
-    a-table-paging(:total="total" :page.sync="page" :page-size="pageSize" class="z-0 border border-t-0")
+div(class="relative m-6")
+  div(class="relative w-page")
+    a-table-tbodies(:meta="meta" :data="initData" :tbodies="tbodies" hover-type="cell")
+      template(#name="{row}")
+        h4 {{row.name}}
+        div(class="text-coolGray-500 text-sm") {{row.description}}
+      template(v-for="(sec, idx) of tbodies" v-slot:[sec.slot]="{tbodies}")
+        div( class="flex justify-center items-center")
+          svg(viewBox="0 0 24 24" width="18" height="18")
+            path(fill="none" d="M0 0h24v24H0z")
+            path(d="M10.9 2.1l9.899 1.415 1.414 9.9-9.192 9.192a1 1 0 0 1-1.414 0l-9.9-9.9a1 1 0 0 1 0-1.414L10.9 2.1zm.707 2.122L3.828 12l8.486 8.485 7.778-7.778-1.06-7.425-7.425-1.06zm2.12 6.364a2 2 0 1 1 2.83-2.829 2 2 0 0 1-2.83 2.829z")
+          div(class="p-1") {{tbodies.name}}
+  a-table-paging(:total="total" :page.sync="page" :page-size="pageSize" class="w-page z-0 border border-t-0")
 
   //div(class="overflow-auto" style="height: 500px;")
     a-table-tbodies(:meta="meta" :data="data" hover-type="row" :tbodies="[{filter: data => data.filter(it => it.type === 1)}, {data}]" :total="total" :page.sync="page" :page-size="pageSize")
@@ -75,6 +72,10 @@ export default {
         {prop: 'type', title: '类型', width: 110},
         {prop: 'createTime', title: '创建时间', width: 220, class: 'tabular-nums', fixed: 'right'},
         {prop: 'updateTime', title: '更新时间', width: 220},
+      ],
+      actions: [
+        {icon: 'M3 4h18v2H3V4zm0 7h18v2H3v-2zm0 7h18v2H3v-2z', onclick: ({row}) => console.log(row)},
+        {icon: 'M3 4h18v2H3V4zm0 7h18v2H3v-2zm0 7h18v2H3v-2z', onclick: ({row}) => console.log(row)},
       ],
     }
 

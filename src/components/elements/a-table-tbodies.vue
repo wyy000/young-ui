@@ -1,33 +1,36 @@
 <template lang="pug">
-table(:class="['w-full table-auto', hoverType ? 'hover-' + hoverType : '']")
-  colgroup
-    col(v-for="(col, idx) of meta.columns" :key="idx" :style="{width: col.width ? `${col.width}px` : 'auto'}")
+div(class="table_box h-full w-full overflow-auto")
+  div(class="absolute top-0 left-0 w-full border-t border-white z-30")
+  div(class="absolute bottom-0 left-0 w-full border-t z-30")
+  table(:class="['w-full table-auto', hoverType ? 'hover-' + hoverType : '']")
+    colgroup
+      col(v-for="(col, idx) of meta.columns" :key="idx" :style="{width: col.width ? `${col.width}px` : 'auto'}")
 
-  thead
-    tr
-      td(v-for="(col, idx) of meta.columns" :key="idx" :col="col" :class="[{'middle_child': idx !== 0 && idx !== meta.columns.length - 1}, col.fixed && `thead_fixed_${col.fixed}`]")
-        div(class="z-0")
-          slot(v-if="col.titleSlot" :name="col.titleSlot")
-          div(v-else class="py-2") {{col.title}}
+    thead
+      tr
+        td(v-for="(col, idx) of meta.columns" :key="idx" :col="col" :class="[{'middle_child': idx !== 0 && idx !== meta.columns.length - 1}, col.fixed && `thead_fixed_${col.fixed}`]")
+          div(class="z-0")
+            slot(v-if="col.titleSlot" :name="col.titleSlot")
+            div(v-else class="py-2") {{col.title}}
 
-  tbody(v-for="(sections, idx) in tbodiesData")
-    tr(v-if="sections.name || sections.slot")
-      th(:colspan="meta.columns.length")
-        slot(v-if="sections.slot" :name="sections.slot" :tbodies="sections")
-        template(v-else-if="sections.name") {{sections.name}}
-    tr(v-for="(row, rIdx) of sections.data" :key="rIdx")
-      td(v-for="(col, cIdx) of meta.columns" :key="cIdx" :class="['h-full', col.fixed && `fixed_${col.fixed}`]")
-        div(class="h-full w-full")
-          slot(v-if="col.slot" :name="col.slot" :row="row" :col="col")
-          template(v-else) {{row[col.prop]}}
-    tr(v-if="tbodiesData.length > 1 && idx !== tbodiesData.length - 1" class="space-row bg-white")
-      td(:colspan="meta.columns.length")
-        div(class="p-2")
+    tbody(v-for="(sections, idx) in tbodiesData")
+      tr(v-if="sections.name || sections.slot")
+        th(:colspan="meta.columns.length")
+          slot(v-if="sections.slot" :name="sections.slot" :tbodies="sections")
+          template(v-else-if="sections.name") {{sections.name}}
+      tr(v-for="(row, rIdx) of sections.data" :key="rIdx")
+        td(v-for="(col, cIdx) of meta.columns" :key="cIdx" :class="['h-full', col.fixed && `fixed_${col.fixed}`]")
+          div(class="h-full w-full")
+            slot(v-if="col.slot" :name="col.slot" :row="row" :col="col")
+            template(v-else) {{row[col.prop]}}
+      tr(v-if="tbodiesData.length > 1 && idx !== tbodiesData.length - 1" class="space-row bg-white")
+        td(:colspan="meta.columns.length")
+          div(class="p-2")
 
-  tfoot(v-if="total !== null")
-    tr
-      td(:colspan="meta.columns.length")
-        a-table-paging(:total="total" :page.sync="pageRef" :page-size="pageSize" class="z-0")
+    tfoot(v-if="total !== null")
+      tr
+        td(:colspan="meta.columns.length")
+          a-table-paging(:total="total" :page.sync="pageRef" :page-size="pageSize" class="z-0")
 </template>
 
 <script>
@@ -103,6 +106,30 @@ export default {
   1. th, td(border-b) => chrome, FF, IE border叠加覆盖显示问题(1px)
   2. ::after(bg) => IE tr高度塌陷定位问题
  */
+.table_box {
+  &::before {
+    content: '';
+    position: absolute;
+    top: 1px;
+    left: 0;
+    bottom: 0;
+    width: 1px;
+    background: #e4e4e7;
+    z-index: 30;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 1px;
+    right: 0;
+    bottom: 0;
+    width: 1px;
+    background: #e4e4e7;
+    z-index: 30;
+  }
+}
+
 table.hover-cell {
   border-spacing: 1px;
 
