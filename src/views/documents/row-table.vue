@@ -84,6 +84,7 @@ export default {
         {prop: 'updateTime', title: '更新时间', width: 220},
       ],
       actions: {theadSlot: 'thead-actions', fixed: 'right'},
+      collapse: { disabled: ({row}) => row.type !== 1, onclick: ({row}) => row.showCollapse = !row.showCollapse },
     }
 
     state.tbodies = [
