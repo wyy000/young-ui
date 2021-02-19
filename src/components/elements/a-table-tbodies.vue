@@ -12,6 +12,7 @@ div(:class="['h-full w-full overflow-auto', {'table_box': hoverType === 'cell'}]
         td(v-for="(col, idx) of theadColumnsRef" :key="idx" :col="col"
           :class="[{'middle_child': idx !== 0 && idx !== theadColumnsRef.length - 1}, col.fixed && `thead_fixed_${col.fixed}`]")
           div(class="z-0")
+            template(v-if="meta.collapse && idx === 0")
             template(v-if="!col.actions")
               slot(v-if="col.titleSlot" :name="col.titleSlot")
               div(v-else class="py-2") {{col.title}}
@@ -19,21 +20,43 @@ div(:class="['h-full w-full overflow-auto', {'table_box': hoverType === 'cell'}]
               slot(v-if="col.theadSlot" :name="col.theadSlot")
               div(v-else class="py-2") 操作
 
-    tbody(v-for="(sections, idx) in tbodiesData")
+    tbody(v-for="(sections, idx) in tbodiesData" class="overflow-hidden")
       // tbody-title
       tr(v-if="sections.name || sections.slot")
         th(:colspan="theadColumnsRef.length")
           slot(v-if="sections.slot" :name="sections.slot" :tbodies="sections")
           template(v-else-if="sections.name") {{sections.name}}
       //tbody-content
-      tr(v-for="(row, rIdx) of sections.data" :key="rIdx")
-        td(v-for="(col, cIdx) of meta.columns" :key="cIdx" :class="['h-full', col.fixed && `fixed_${col.fixed}`]")
-          div(class="h-full w-full")
-            slot(v-if="col.slot" :name="col.slot" :row="row" :col="col")
-            template(v-else) {{row[col.prop]}}
-        td(v-if="meta.actions" :class="['h-full', meta.actions.fixed && `fixed_${meta.actions.fixed}`]")
-          div(class="h-full w-full")
-            slot(name="tbody-actions" :row="row")
+      template(v-for="(row, rIdx) of sections.data" :key="rIdx")
+        tr
+          // collapse-opeation
+          td(v-if="meta.collapse" :class="['h-full', meta.collapse.fixed && `fixed_${meta.collapse.fixed}`]" @click="meta.collapse.onclick({row})")
+            div(class="h-full w-full")
+              slot(v-if="meta.collapse.slot" name="meta.collapse.slot" :row="row")
+              svg(v-else viewBox="0 0 24 24" fill="currentColor" class="mx-4 w-6 h-6 text-coolGray-400 z-1")
+                path(fill="none" d="M0 0h24v24H0z")
+                path(d="M12 13.172l4.95-4.95 1.414 1.414L12 16 5.636 9.636 7.05 8.222z")
+          td(v-for="(col, cIdx) of meta.columns" :key="cIdx" :class="['h-full', col.fixed && `fixed_${col.fixed}`]")
+            div(class="h-full w-full")
+              slot(v-if="col.slot" :name="col.slot" :row="row" :col="col")
+              template(v-else) {{row[col.prop]}}
+          td(v-if="meta.actions" :class="['h-full', meta.actions.fixed && `fixed_${meta.actions.fixed}`]")
+            div(class="h-full w-full")
+              slot(name="tbody-actions" :row="row")
+        // collapse-content
+        transition(
+          enter-active-class="transition-all duration-500 ease-in-out"
+          leave-active-class="transition-all duration-500 ease-in-out"
+          @before-enter="el => {el.style.height = '0px'}"
+          @enter="el => {el.style.height = el.children[0].children[0].children[0].offsetHeight + 'px'}"
+          @leave="el => {el.style.height = '0px'}"
+        )
+          tr(v-show="meta.collapse && row.showCollapse" class="overflow-hidden")
+            td(:colspan="theadColumnsRef.length" class="p-0")
+              div(class="relative")
+                slot(v-if="meta.collapse.slot" :name="meta.collapse.slot" :row="row" :show="row.showCollapse")
+                div(v-else) show detail
+
       // tbody-empty
       tr(v-if="tbodiesData.length > 1 && idx !== tbodiesData.length - 1" class="space-row bg-white")
         td(:colspan="theadColumnsRef.length")
@@ -94,8 +117,9 @@ export default {
     const tbodiesData = computed(() => {
       return props.tbodies.length > 0 ? props.tbodies.map(it => {
         it.data = typeof it.filter === 'function' ? it.filter(props.data) : it.data
+        if (props.meta.collapse) it.showCollapse = false
         return it
-      }) : [{data: props.data}]
+      }) : [{data: props.meta.collapse ? props.data.map(it => {it.showCollapse = false; return it}) : props.data}]
     })
 
     const pageRef = computed({
@@ -103,7 +127,9 @@ export default {
       set: value => value !== props.page && emit('update:page', value),
     })
 
-    const theadColumnsRef = computed(() => props.meta.columns.concat([{...props.meta.actions, actions: true}] ?? []))
+    const theadColumnsRef = computed(() => (props.meta.collapse ? [props.meta.collapse] : [])
+        .concat(props.meta.columns)
+        .concat(props.meta.actions ? [{...props.meta.actions, actions: true}] : []))
 
     // IE浏览器 thead.slot高度不一致，滚动下边框问题(fix: 滚动条问题)
     /*watch(() => props.meta, async (value) => {
@@ -379,12 +405,4 @@ table.hover-row {
     }
   }
 }
-
-//table.hover-normal {
-//  @apply whitespace-nowrap border-collapse;
-//
-//  tr {
-//    @apply border;
-//  }
-//}
 </style>
