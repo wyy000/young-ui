@@ -33,6 +33,7 @@ export default {
     const refs = reactive({
       select: undefined,
     })
+    // TODO props.modelValue初始化
 
     const selected = computed(() => props.options.find(it => it[0] === props.modelValue))
     const displayName = computed(() => selected.value?.[1] ?? props.placeholder)

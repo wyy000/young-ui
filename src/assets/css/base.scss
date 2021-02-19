@@ -12,7 +12,7 @@ body {
 }
 
 #app {
-  @apply min-h-full;
+  @apply h-full;
 }
 
 @tailwind components;

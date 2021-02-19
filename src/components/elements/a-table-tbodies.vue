@@ -1,7 +1,6 @@
 <template lang="pug">
-div(:class="['h-full w-full overflow-auto', {'table_box': hoverType === 'cell', 'border-l': hoverType === 'row'}]")
+div(:class="['h-full w-full overflow-auto', {'table_box': hoverType === 'cell', 'border-l border-r': hoverType === 'row'}]")
   div(v-if="hoverType === 'cell'" class="absolute top-0 left-0 w-full border-t border-white z-30")
-  //div(class="absolute bottom-0 left-0 w-full border-t z-30")
   // IE浏览器 thead.slot高度不一致，滚动下边框定位元素
   //div(class="thead_border absolute bottom-0 left-0 h-0 w-full border-t z-30")
   table(:class="['w-full table-auto', hoverType ? 'hover-' + hoverType : '']")
@@ -75,7 +74,7 @@ export default {
     // cell | row
     hoverType: {
       type: String,
-      default: null,
+      default: 'cell',
     },
     total: {
       type: Number,
@@ -380,4 +379,12 @@ table.hover-row {
     }
   }
 }
+
+//table.hover-normal {
+//  @apply whitespace-nowrap border-collapse;
+//
+//  tr {
+//    @apply border;
+//  }
+//}
 </style>

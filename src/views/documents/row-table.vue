@@ -1,40 +1,26 @@
 <template lang="pug">
 div(class="relative m-6")
-  div(class="relative" style="height: 600px;")
-    a-table-tbodies(:meta="meta" :data="initData" :tbodies="tbodies" hover-type="cell")
-      template(#name="{row}")
-        h4 {{row.name}}
-        div(class="text-coolGray-500 text-sm") {{row.description}}
-      template(v-for="(sec, idx) of tbodies.filter(it => it.slot)" v-slot:[sec.slot]="{tbodies}")
-        div( class="flex justify-center items-center")
-          svg(viewBox="0 0 24 24" width="18" height="18")
-            path(fill="none" d="M0 0h24v24H0z")
-            path(d="M10.9 2.1l9.899 1.415 1.414 9.9-9.192 9.192a1 1 0 0 1-1.414 0l-9.9-9.9a1 1 0 0 1 0-1.414L10.9 2.1zm.707 2.122L3.828 12l8.486 8.485 7.778-7.778-1.06-7.425-7.425-1.06zm2.12 6.364a2 2 0 1 1 2.83-2.829 2 2 0 0 1-2.83 2.829z")
-          div(class="p-1") {{tbodies.name}}
-      template(#thead-actions)
-        div(class="h-full flex flex-col")
-          svg(viewBox="0 0 24 24" width="24" height="24")
-            path(fill="none" d="M0 0h24v24H0z")
-            path(d="M7.05 13.406l3.534 3.536-1.413 1.414 1.415 1.415-1.414 1.414-2.475-2.475-2.829 2.829-1.414-1.414 2.829-2.83-2.475-2.474 1.414-1.414 1.414 1.413 1.413-1.414zM3 3l3.546.003 11.817 11.818 1.415-1.414 1.414 1.414-2.474 2.475 2.828 2.829-1.414 1.414-2.829-2.829-2.475 2.475-1.414-1.414 1.414-1.415L3.003 6.531 3 3zm14.457 0L21 3.003l.002 3.523-4.053 4.052-3.536-3.535L17.457 3z")
-          div Actions
-      template(#tbody-actions="{row}")
-        div(class="px-1 flex justify-start space-x-1 divide-x")
-          y-button(v-if="row.type === 1 || row.type === 3" kind="error" size="xs" @click="click(row, 'delete')") delete
-          y-button(v-if="row.type === 2" size="xs" @click="click(row, 'click')") click
-          y-button(v-if="row.type === 3" kind="success" size="xs" @click="click(row, 'add')") add
-  a-table-paging(:total="total" :page.sync="page" :page-size="pageSize" class="w-page z-0 border border-t-0")
+  div.py-2.flex.space-x-2.items-center
+    label
+      input(v-model="scrollX" type="checkbox")
+      span scrollX
+    label
+      input(v-model="scrollY" type="checkbox")
+      span scrollY
+    a-select(v-model="footer" :options="[['inner'], ['other'], ['none']]" placeholder="footer" class="w-36")
 
-  //div(class="overflow-auto" style="height: 600px;")
-    a-table-tbodies(:meta="meta" :data="data" hover-type="row" :tbodies="[{filter: data => data.filter(it => it.type === 1)}, {data}]" :total="total" :page.sync="page" :page-size="pageSize")
-      //a-table-tbodies(:meta="meta" :data="data" hover-type="row" :tbodies="[{filter: data => data.filter(it => it.type === 1)}, {data}]")
+  div(:class="['overflow-auto', {'w-page': scrollX}]" :style="{height: scrollY ? '600px' : 'auto'}")
+    a-table-tbodies(:meta="meta" :data="data" hover-type="row" :tbodies="[{filter: data => data.filter(it => it.type === 1)}, {data}]" :total="footer === 'inner' ? total : undefined" :page.sync="footer === 'inner' ? page : undefined" :page-size="footer === 'inner' ? pageSize : undefined")
       template(#name="{row}")
         h4 {{row.name}}
         div(class="text-coolGray-500 text-sm") {{row.description}}
+  a-table-paging(v-if="footer === 'other'" :total="total" :page.sync="page" :page-size="pageSize" :class="['z-0 border border-t-0', {'w-page': scrollX}]")
 </template>
 
 <script>
 import {reactive, toRefs, watch} from 'vue'
 
+import ASelect from '@/components/elements/a-select.vue'
 import ATablePaging from '@/components/elements/a-table-paging.vue'
 import ATableTbodies from '@/components/elements/a-table-tbodies.vue'
 import YButton from '@/components/element/y-button.vue'
@@ -63,6 +49,7 @@ const otherData = Array.from({length: 2}).map(it => ({
 
 export default {
   components: {
+    ASelect,
     ATablePaging,
     ATableTbodies,
     YButton,
@@ -76,6 +63,13 @@ export default {
       page: 1,
       pageSize: 10,
       total: null,
+    })
+
+    const show = reactive({
+      scrollX: true,
+      scrollY: true,
+      // 'inner' | 'other' | 'none'
+      footer: 'none',
     })
 
     state.meta = {
@@ -110,6 +104,7 @@ export default {
     return {
       initData,
       ...toRefs(state),
+      ...toRefs(show),
 
       click,
     }

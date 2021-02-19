@@ -1,8 +1,9 @@
 <template lang="pug">
 app-aside.h-full
   template(#aside)
-    div(class="h-full border-r border-emerald-500 text-center")
-      router-link(to="/documents/table") table
+    div(class="h-full border-r border-emerald-500 text-center divide-y flex flex-col")
+      router-link(to="/documents/cell-table" class="py-2") cell-table
+      router-link(to="/documents/row-table" class="py-2") row-table
   div.h-full.flex.flex-col
     app-header.flex
       div(class="flex-1 flex items-center justify-between")
