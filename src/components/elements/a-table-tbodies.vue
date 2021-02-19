@@ -1,5 +1,5 @@
 <template lang="pug">
-div(:class="['h-full w-full overflow-auto', {'table_box': hoverType === 'cell', 'border-l border-r': hoverType === 'row'}]")
+div(:class="['h-full w-full overflow-auto', {'table_box': hoverType === 'cell'}]")
   div(v-if="hoverType === 'cell'" class="absolute top-0 left-0 w-full border-t border-white z-30")
   // IE浏览器 thead.slot高度不一致，滚动下边框定位元素
   //div(class="thead_border absolute bottom-0 left-0 h-0 w-full border-t z-30")
@@ -42,7 +42,7 @@ div(:class="['h-full w-full overflow-auto', {'table_box': hoverType === 'cell', 
     tfoot(v-if="total !== null")
       tr
         td(:colspan="theadColumnsRef.length")
-          a-table-paging(:total="total" :page.sync="pageRef" :page-size="pageSize" class="z-0")
+          a-table-paging(:total="total" v-model:page="pageRef" :page-size="pageSize" class="z-0")
 </template>
 
 <script>
@@ -251,7 +251,7 @@ table.hover-row {
 
   td, th {
     &:first-child {
-      border-left: 1px solid white;
+      border-left: 1px solid #e4e4e7;
     }
 
     &:last-child {
@@ -283,7 +283,7 @@ table.hover-row {
         position: absolute;
         top: 0;
         right: 0;
-        left: 0;
+        left: -1px;
         bottom: -1px;
         background: #e4e4e7;
         z-index: -20;

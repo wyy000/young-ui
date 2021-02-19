@@ -10,11 +10,11 @@ div(class="relative m-6")
     a-select(v-model="footer" :options="[['inner'], ['other'], ['none']]" placeholder="footer" class="w-36")
 
   div(:class="['overflow-auto', {'w-page': scrollX}]" :style="{height: scrollY ? '600px' : 'auto'}")
-    a-table-tbodies(:meta="meta" :data="data" hover-type="row" :tbodies="[{filter: data => data.filter(it => it.type === 1)}, {data}]" :total="footer === 'inner' ? total : undefined" :page.sync="footer === 'inner' ? page : undefined" :page-size="footer === 'inner' ? pageSize : undefined")
+    a-table-tbodies(:meta="meta" :data="data" hover-type="row" :tbodies="[{filter: data => data.filter(it => it.type === 1)}, {data}]" :total="footer === 'inner' ? total : undefined" v-model:page.sync="page" :page-size="pageSize")
       template(#name="{row}")
         h4 {{row.name}}
         div(class="text-coolGray-500 text-sm") {{row.description}}
-  a-table-paging(v-if="footer === 'other'" :total="total" :page.sync="page" :page-size="pageSize" :class="['z-0 border border-t-0', {'w-page': scrollX}]")
+  a-table-paging(v-if="footer === 'other'" :total="total" v-model:page="page" :page-size="pageSize" :class="['z-0 border border-t-0', {'w-page': scrollX}]")
 </template>
 
 <script>

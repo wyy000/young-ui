@@ -10,7 +10,7 @@ div(class="relative m-6")
     a-select(v-model="footer" :options="[['inner'], ['other'], ['none']]" placeholder="footer" class="w-36")
 
   div(:class="['relative', {'w-page': scrollX}]" :style="{height: scrollY ? '600px' : 'auto'}")
-    a-table-tbodies(:meta="meta" :data="initData" :tbodies="tbodies" :total="footer === 'inner' ? total : undefined" :page.sync="footer === 'inner' ? page : undefined" :page-size="footer === 'inner' ? pageSize : undefined")
+    a-table-tbodies(:meta="meta" :data="initData" :tbodies="tbodies" :total="footer === 'inner' ? total : undefined" v-model:page="page" :page-size="pageSize")
       template(#name="{row}")
         h4 {{row.name}}
         div(class="text-coolGray-500 text-sm") {{row.description}}
@@ -31,7 +31,7 @@ div(class="relative m-6")
           y-button(v-if="row.type === 1 || row.type === 3" kind="error" size="xs" @click="click(row, 'delete')") delete
           y-button(v-if="row.type === 2" size="xs" @click="click(row, 'click')") click
           y-button(v-if="row.type === 3" kind="success" size="xs" @click="click(row, 'add')") add
-  a-table-paging(v-if="footer === 'other'" :total="total" :page.sync="page" :page-size="pageSize" :class="['z-0 border border-t-0', {'w-page': scrollX}]")
+  a-table-paging(v-if="footer === 'other'" :total="total" v-model:page="page" :page-size="pageSize" :class="['z-0 border border-t-0', {'w-page': scrollX}]")
 </template>
 
 <script>
