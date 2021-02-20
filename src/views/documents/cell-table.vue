@@ -20,6 +20,11 @@ div(class="relative m-6")
             path(fill="none" d="M0 0h24v24H0z")
             path(d="M10.9 2.1l9.899 1.415 1.414 9.9-9.192 9.192a1 1 0 0 1-1.414 0l-9.9-9.9a1 1 0 0 1 0-1.414L10.9 2.1zm.707 2.122L3.828 12l8.486 8.485 7.778-7.778-1.06-7.425-7.425-1.06zm2.12 6.364a2 2 0 1 1 2.83-2.829 2 2 0 0 1-2.83 2.829z")
           div(class="p-1") {{tbodies.name}}
+      template(#tbody-collapse="{row, showCollapse}")
+        svg(fill="none" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" :class="['mx-4 text-coolGray-400 transition transform duration-300', {'rotate-180': showCollapse}]" @click="row.showCollapse = !row.showCollapse")
+          path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 13l-7 7-7-7m14-8l-7 7-7-7")
+      template(#collapse="{row, showCollapse}")
+        mini-table(v-if="showCollapse")
       template(#thead-actions)
         div(class="h-full flex flex-col")
           svg(viewBox="0 0 24 24" width="24" height="24")
@@ -41,6 +46,8 @@ import ATablePaging from '@/components/elements/a-table-paging.vue'
 import ATableTbodies from '@/components/elements/a-table-tbodies.vue'
 import YButton from '@/components/element/y-button.vue'
 import ASelect from '@/components/elements/a-select'
+
+import MiniTable from '@/views/documents/mini-table.vue'
 
 const initData = Array.from({length: 15}).map(it => ({
   createTime: 1607503775095,
@@ -70,6 +77,7 @@ export default {
     ATablePaging,
     ATableTbodies,
     YButton,
+    MiniTable,
   },
 
   setup () {
@@ -101,6 +109,7 @@ export default {
         {prop: 'updateTime', title: '更新时间', width: 220},
       ],
       actions: {theadSlot: 'thead-actions', fixed: 'right'},
+      collapse: {tbodySlot: 'tbody-collapse', slot: 'collapse'},
     }
 
     state.tbodies = [

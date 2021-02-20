@@ -10,10 +10,16 @@ div(class="relative m-6")
     a-select(v-model="footer" :options="[['inner'], ['other'], ['none']]" placeholder="footer" class="w-36")
 
   div(:class="['overflow-auto', {'w-page': scrollX}]" :style="{height: scrollY ? '600px' : 'auto'}")
-    a-table-tbodies(:meta="meta" :data="data" hover-type="row" :tbodies="[{filter: data => data.filter(it => it.type === 1)}, {data}]" :total="footer === 'inner' ? total : undefined" v-model:page.sync="page" :page-size="pageSize")
+    a-table-tbodies(:meta="meta" :data="data" hover-type="row" :tbodies="[{filter: data => data.filter(it => it.type === 1)}, {data}]" :total="footer === 'inner' ? total : undefined" v-model:page="page" :page-size="pageSize")
       template(#name="{row}")
         h4 {{row.name}}
         div(class="text-coolGray-500 text-sm") {{row.description}}
+      template(#tbody-collapse="{row, showCollapse}")
+        svg(viewBox="0 0 24 24" width="24" height="24" class="mx-2" @click="row.showCollapse = !row.showCollapse")
+          path(fill="none" d="M0 0h24v24H0z")
+          path(d="M12 3c-.825 0-1.5.675-1.5 1.5S11.175 6 12 6s1.5-.675 1.5-1.5S12.825 3 12 3zm0 15c-.825 0-1.5.675-1.5 1.5S11.175 21 12 21s1.5-.675 1.5-1.5S12.825 18 12 18zm0-7.5c-.825 0-1.5.675-1.5 1.5s.675 1.5 1.5 1.5 1.5-.675 1.5-1.5-.675-1.5-1.5-1.5z")
+      template(#collapse="{row, showCollapse}")
+        mini-table(v-if="showCollapse")
   a-table-paging(v-if="footer === 'other'" :total="total" v-model:page="page" :page-size="pageSize" :class="['z-0 border border-t-0', {'w-page': scrollX}]")
 </template>
 
@@ -24,6 +30,8 @@ import ASelect from '@/components/elements/a-select.vue'
 import ATablePaging from '@/components/elements/a-table-paging.vue'
 import ATableTbodies from '@/components/elements/a-table-tbodies.vue'
 import YButton from '@/components/element/y-button.vue'
+
+import MiniTable from '@/views/documents/mini-table.vue'
 
 const initData = Array.from({length: 15}).map(it => ({
   createTime: 1607503775095,
@@ -53,6 +61,7 @@ export default {
     ATablePaging,
     ATableTbodies,
     YButton,
+    MiniTable,
   },
 
   setup () {
@@ -84,7 +93,7 @@ export default {
         {prop: 'updateTime', title: '更新时间', width: 220},
       ],
       actions: {theadSlot: 'thead-actions', fixed: 'right'},
-      collapse: { disabled: ({row}) => row.type !== 1, onclick: ({row}) => row.showCollapse = !row.showCollapse },
+      collapse: {slot: 'collapse', onclick: ({row}) => row.showCollapse = !row.showCollapse},
     }
 
     state.tbodies = [
