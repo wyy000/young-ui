@@ -5,34 +5,33 @@ div(:class="['h-full w-full overflow-auto', {'table_box': hoverType === 'cell'}]
   //div(class="thead_border absolute bottom-0 left-0 h-0 w-full border-t z-30")
   table(:class="['w-full table-auto', hoverType ? 'hover-' + hoverType : '']")
     colgroup
-      col(v-for="(col, idx) of meta.columns" :key="idx" :style="{width: col.width ? `${col.width}px` : 'auto'}")
+      col(v-for="(col, idx) of theadColumnsRef" :key="idx" :style="{width: col.width ? `${col.width}px` : 'auto'}")
 
     thead
       tr
         td(v-for="(col, idx) of theadColumnsRef" :key="idx" :col="col"
           :class="[{'middle_child': idx !== 0 && idx !== theadColumnsRef.length - 1}, col.fixed && `thead_fixed_${col.fixed}`]")
           div(class="z-0")
-            template(v-if="meta.collapse && idx === 0")
-            template(v-if="!col.actions")
+            template(v-if="!col.actions && !col.collapse")
               slot(v-if="col.titleSlot" :name="col.titleSlot")
               div(v-else class="py-2") {{col.title}}
-            template(v-else)
+            template(v-if="col.actions")
               slot(v-if="col.theadSlot" :name="col.theadSlot")
               div(v-else class="py-2") 操作
 
     tbody(v-for="(sections, idx) in tbodiesData" class="overflow-hidden")
       // tbody-title
-      tr(v-if="sections.name || sections.slot")
+      tr(v-if="sections.name || sections.slot" class="hover")
         th(:colspan="theadColumnsRef.length")
           slot(v-if="sections.slot" :name="sections.slot" :tbodies="sections")
           template(v-else-if="sections.name") {{sections.name}}
       //tbody-content
       template(v-for="(row, rIdx) of sections.data" :key="rIdx")
-        tr
+        tr(class="hover")
           // collapse-opeation
-          td(v-if="meta.collapse" :class="['h-full', meta.collapse.fixed && `fixed_${meta.collapse.fixed}`]" @click="meta.collapse.onclick({row})")
+          td(v-if="meta.collapse" :class="['h-full hover:cursor-pointer', meta.collapse.fixed && `fixed_${meta.collapse.fixed}`]" @click="meta.collapse.onclick && meta.collapse.onclick({row})")
             div(class="h-full w-full")
-              slot(v-if="meta.collapse.slot" name="meta.collapse.slot" :row="row")
+              slot(v-if="meta.collapse.tbodySlot" :name="meta.collapse.tbodySlot" :row="row" :showCollapse="row.showCollapse")
               svg(v-else viewBox="0 0 24 24" fill="currentColor" class="mx-4 w-6 h-6 text-coolGray-400 z-1")
                 path(fill="none" d="M0 0h24v24H0z")
                 path(d="M12 13.172l4.95-4.95 1.414 1.414L12 16 5.636 9.636 7.05 8.222z")
@@ -48,13 +47,15 @@ div(:class="['h-full w-full overflow-auto', {'table_box': hoverType === 'cell'}]
           enter-active-class="transition-all duration-500 ease-in-out"
           leave-active-class="transition-all duration-500 ease-in-out"
           @before-enter="el => {el.style.height = '0px'}"
-          @enter="el => {el.style.height = el.children[0].children[0].children[0].offsetHeight + 'px'}"
+          @enter="el => {el.style.height = el.children[0].children[0].offsetHeight + 'px'}"
           @leave="el => {el.style.height = '0px'}"
         )
-          tr(v-show="meta.collapse && row.showCollapse" class="overflow-hidden")
-            td(:colspan="theadColumnsRef.length" class="p-0")
+          tr(v-if="meta.collapse && row.showCollapse" class="overflow-hidden")
+            td
+              div(class="h-full w-full")
+            td(:colspan="theadColumnsRef.length - 1" class="p-0")
               div(class="relative")
-                slot(v-if="meta.collapse.slot" :name="meta.collapse.slot" :row="row" :show="row.showCollapse")
+                slot(v-if="meta.collapse && meta.collapse.slot" :name="meta.collapse.slot" :row="row" :showCollapse="row.showCollapse")
                 div(v-else) show detail
 
       // tbody-empty
@@ -99,6 +100,10 @@ export default {
       type: String,
       default: 'cell',
     },
+    floatThead: {
+      type: Boolean,
+      default: false,
+    },
     total: {
       type: Number,
       default: null,
@@ -127,9 +132,9 @@ export default {
       set: value => value !== props.page && emit('update:page', value),
     })
 
-    const theadColumnsRef = computed(() => (props.meta.collapse ? [props.meta.collapse] : [])
-        .concat(props.meta.columns)
-        .concat(props.meta.actions ? [{...props.meta.actions, actions: true}] : []))
+    const theadColumnsRef = computed(() => (props.meta.collapse ? [{...Object.assign({width: 60, collapse: true}, props.meta.collapse)}] : [])
+      .concat(props.meta.columns)
+      .concat(props.meta.actions ? [{...props.meta.actions, actions: true}] : []))
 
     // IE浏览器 thead.slot高度不一致，滚动下边框问题(fix: 滚动条问题)
     /*watch(() => props.meta, async (value) => {
@@ -183,7 +188,7 @@ export default {
 table.hover-cell {
   border-spacing: 1px;
 
-  tr td.fixed_right {
+  tr.hover td.fixed_right {
     @apply sticky right-0 z-10;
   }
 
@@ -194,7 +199,7 @@ table.hover-cell {
     right: 0;
   }
 
-  tr td.fixed_left {
+  tr.hover td.fixed_left {
     @apply sticky left-0 z-10;
   }
 
@@ -233,7 +238,7 @@ table.hover-cell {
     }
   }
 
-  tbody td {
+  tbody tr.hover td {
     @apply relative bg-white border border-white;
 
     &:hover {
@@ -275,7 +280,8 @@ table.hover-cell {
 table.hover-row {
   border-spacing: 0 1px;
 
-  td, th {
+  tr td,
+  tr th {
     &:first-child {
       border-left: 1px solid #e4e4e7;
     }
@@ -288,7 +294,7 @@ table.hover-row {
   thead tr {
     @apply border-r border-l border-b;
 
-    td {
+    &.floatThead td {
       @apply sticky top-0 z-10;
 
       &::after {
@@ -343,9 +349,10 @@ table.hover-row {
     }
   }
 
-  tbody tr {
+  tbody tr.hover {
     td {
-      @apply border-t border-b border-white;
+      border-top: 1px solid white;
+      border-bottom: 1px solid white;
     }
 
     &:hover td {
