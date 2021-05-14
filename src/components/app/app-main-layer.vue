@@ -24,10 +24,10 @@ app-aside.h-full
 </template>
 
 <script>
-import AppHeader from "@/components/layout/app-header";
-import AppFooter from "@/components/layout/app-footer";
-import AppAside from "@/components/layout/app-aside";
-import YSearch from "@/components/doc/y-search";
+import AppHeader from "@/components/layout/app-header.vue"
+import AppFooter from "@/components/layout/app-footer.vue"
+import AppAside from "@/components/layout/app-aside.vue"
+import YSearch from "@/components/doc/y-search.vue"
 
 export default {
   components: {

@@ -40,7 +40,7 @@ import {reactive, toRefs, watch} from 'vue'
 import ATablePaging from '@/components/elements/a-table-paging.vue'
 import ATableTbodies from '@/components/elements/a-table-tbodies.vue'
 import YButton from '@/components/element/y-button.vue'
-import ASelect from '@/components/elements/a-select'
+import ASelect from '@/components/elements/a-select.vue'
 
 const initData = Array.from({length: 15}).map(it => ({
   createTime: 1607503775095,

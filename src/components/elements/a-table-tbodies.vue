@@ -48,7 +48,7 @@ div(:class="['h-full w-full overflow-auto', {'table_box': hoverType === 'cell'}]
 <script>
 import {computed, nextTick, watch} from 'vue'
 
-import ATablePaging from '@/components/elements/a-table-paging'
+import ATablePaging from '@/components/elements/a-table-paging.vue'
 
 const PAGE_NUMBER = 20
 const PAGE_SIZE = 1

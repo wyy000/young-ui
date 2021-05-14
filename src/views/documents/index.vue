@@ -8,9 +8,9 @@ app-message-layer
 </template>
 
 <script>
-import AppMainLayer from "@/components/app/app-main-layer";
-import AppModalLayer from "@/components/app/app-modal-layer";
-import AppMessageLayer from "@/components/app/app-message-layer";
+import AppMainLayer from "@/components/app/app-main-layer.vue"
+import AppModalLayer from "@/components/app/app-modal-layer.vue"
+import AppMessageLayer from "@/components/app/app-message-layer.vue"
 
 export default {
   components: {

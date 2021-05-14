@@ -4,3 +4,9 @@ declare module '*.vue' {
   const component: DefineComponent<{}, {}, any>
   export default component
 }
+
+interface ImportMeta {
+  env: Partial<{
+    VITE_LOGOUT_URL: string
+  }>
+}
