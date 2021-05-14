@@ -8,5 +8,9 @@ export default [
   {
     path: 'row-table',
     component: () => import('../views/documents/row-table.vue')
+  },
+  {
+    path: 'button',
+    component: () => import('../views/documents/button.vue')
   }
 ] as RouteRecordRaw[]
