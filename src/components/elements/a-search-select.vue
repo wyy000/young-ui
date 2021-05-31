@@ -6,7 +6,7 @@ a-popper(
   :offset="[0, 2]"
   class="min-width bg-white shadow-md"
 )
-  div(class="w-80 border bg-white flex flex-col")
+  div(v-if="state.visible" class="w-80 border bg-white flex flex-col")
     input(v-model="state.keyword" v-if="search" placeholder="search..." class="m-2 p-1 border")
     div(v-if="multiple" class="flex m-2 mt-0 p-1 border text-center text-sm divide-x")
       button(@click="selectAllHandle" class="flex-1 focus:outline-none") {{refSelectedAll ? '取消全选' : '全选'}}
@@ -128,7 +128,7 @@ export default {
     const refShowSelectedNum = computed(() => `已选择${data.value.filter(it => it[2]).length ?? 0}项`)
 
     function cancel () {
-      console.log('关闭弹窗')
+      state.visible = false
     }
 
     return {

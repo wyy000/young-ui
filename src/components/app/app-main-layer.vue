@@ -6,7 +6,7 @@ app-aside.h-full
         div.px-3.py-3.shadow
           a-text-input.w-full.h-8.border-l-0.border-r-0.border-t-0.border-b.border-emerald-400.outline-none(v-model="keyword" @click="selectHandle($event.currentTarget)")
         div.flex-1.overflow-y-auto(ref="scrollBox")
-          y-menu(:list="nav" ref="menuDom")
+          y-menu(:list="menuList" ref="menuDom")
 
   div.w-full.h-full.flex-1.flex.flex-col
     app-header.flex
@@ -67,36 +67,32 @@ export default {
 
     watch(() => state.keyword, value => {
       if (!value) return
-      const index = menuList.value.findIndex(it => it.path === value) ?? menuList.value.findIndex(it => RegExp(value, 'ig').test(it.path))
+      const index = menuList.value.findIndex(it => it.name === value) ?? menuList.value.findIndex(it => RegExp(value, 'ig').test(it.name))
       if (index) {
         const $el = state.menuDom.$el
-        const height = $el.offsetHeight
-        console.log(height, $el.getBoundingClientRect(), $el.scrollTop, $el.getBoundingClientRect().height / menuList.value.length * index, state.scrollBox)
         state.scrollBox.scrollTop = $el.getBoundingClientRect().height / menuList.value.length * index
       }
-
-      console.log(state.menuDom.$el)
     })
 
     function selectHandle (refEl) {
-      showSearchSelect({
-        name: 'a-search-select',
-        props: {
-          refEl,
-          options: [[1, 2]],
-          visible: true,
-        },
-        listeners: {
-          update: () => {
-            hideSearchSelect()
-          }
-        },
-      })
+      // showSearchSelect({
+      //   name: 'a-search-select',
+      //   props: {
+      //     refEl,
+      //     options: [[1, 2]],
+      //     visible: true,
+      //   },
+      //   listeners: {
+      //     update: () => {
+      //       hideSearchSelect()
+      //     }
+      //   },
+      // })
     }
 
     return {
       ...toRefs(state),
-      nav,
+      menuList,
 
       selectHandle,
     }

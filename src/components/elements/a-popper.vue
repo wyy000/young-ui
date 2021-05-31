@@ -10,6 +10,8 @@ import {createPopper} from '@popperjs/core'
 import {onClickaway} from '@/utils'
 
 export default defineComponent({
+  emits: ['update:visible'],
+
   props: {
     visible: {
       type: Boolean,
@@ -64,7 +66,6 @@ export default defineComponent({
           options: {offset: props.offset},
         } : []),
       })
-      console.log(refElement.value, refs.comp)
       stopClickaway = onClickaway(hide)
     }
 
