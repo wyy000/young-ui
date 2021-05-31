@@ -1,16 +1,21 @@
 <template lang="pug">
 app-aside.h-full
   template(#aside)
-    div(class="h-full border-r border-emerald-500 text-center divide-y flex flex-col")
-      router-link(v-for="it of nav" :to="`/documents/${it.path}`" class="py-2") {{it.path}}
-  div.h-full.flex.flex-col
+    div.h-full.flex.flex-col
+      div(class="h-full flex flex-col")
+        div.px-3.py-3.shadow
+          a-text-input.w-full.h-8.border-l-0.border-r-0.border-t-0.border-b.border-emerald-400.outline-none(v-model="keyword" @click="selectHandle($event.currentTarget)")
+        div.flex-1.overflow-y-auto(ref="scrollBox")
+          y-menu(:list="nav" ref="menuDom")
+
+  div.w-full.h-full.flex-1.flex.flex-col
     app-header.flex
       div(class="flex-1 flex items-center justify-between")
         div(class="flex items-center")
           svg(viewBox="0 0 20 20" fill="currentColor" class="mx-2 w-10 h-10")
             path(fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.012 6.012 0 011.912-2.706C6.512 5.73 6.974 6 7.5 6A1.5 1.5 0 019 7.5V8a2 2 0 004 0 2 2 0 011.523-1.943A5.977 5.977 0 0116 10c0 .34-.028.675-.083 1H15a2 2 0 00-2 2v2.197A5.973 5.973 0 0110 16v-2a2 2 0 00-2-2 2 2 0 01-2-2 2 2 0 00-1.668-1.973z" clip-rule="evenodd")
           h1 Young UI
-        y-search
+        y-search.bg-none.border
       div(class="w-60 flex items-center justify-around")
         a(href="https://github.com/wyy000/young-ui")
           svg(viewBox="0 0 16 16" width="32" height="32" fill="currentColor")
@@ -23,27 +28,75 @@ app-aside.h-full
 </template>
 
 <script>
-import {ref} from 'vue'
+import {inject, reactive, ref, toRefs, watch} from 'vue'
+
 import AppHeader from "@/components/layout/app-header.vue"
 import AppFooter from "@/components/layout/app-footer.vue"
 import AppAside from "@/components/layout/app-aside.vue"
+import YMenu from "@/components/element/y-menu.vue"
 import YSearch from "@/components/doc/y-search.vue"
+import APopper from "@/components/elements/a-popper.vue"
+import ASearchSelect from "@/components/elements/a-search-select.vue"
+import ATextInput from "@/components/elements/a-text-input.vue"
 
 import navList from '@/router/document'
 
 export default {
   components: {
+    YMenu,
     YSearch,
     AppAside,
     AppFooter,
-    AppHeader
+    AppHeader,
+    APopper,
+    ASearchSelect,
+    ATextInput,
   },
 
-  setup () {
+  setup (props, arg) {
+    const useLayer = inject('mainLayer')
+    const {show: showSearchSelect, hide: hideSearchSelect} = useLayer.mainLayer('a-search-select', ASearchSelect)
     const nav = ref(navList)
+    const state = reactive({
+      keyword: '',
+      menuDom: null,
+      scrollBox: null,
+    })
+
+    watch(() => state.keyword, value => {
+      if (!value) return
+      const index = nav.value.findIndex(it => it.path === value) ?? nav.value.findIndex(it => RegExp(value, 'ig').test(it.path))
+      if (index) {
+        const $el = state.menuDom.$el
+        const height = $el.offsetHeight
+        console.log(height, $el.getBoundingClientRect(), $el.scrollTop, $el.getBoundingClientRect().height / nav.value.length * index, state.scrollBox)
+        state.scrollBox.scrollTop = $el.getBoundingClientRect().height / nav.value.length * index
+      }
+
+      console.log(state.menuDom.$el)
+    })
+
+    function selectHandle (refEl) {
+      showSearchSelect({
+        name: 'a-search-select',
+        props: {
+          refEl,
+          options: [[1, 2]],
+          visible: true,
+        },
+        listeners: {
+          update: () => {
+            hideSearchSelect()
+          }
+        },
+      })
+    }
 
     return {
+      ...toRefs(state),
       nav,
+
+      selectHandle,
     }
   },
 }

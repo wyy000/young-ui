@@ -1,41 +1,46 @@
 <template lang="pug">
-div.mx-auto
-  button(v-popper="{popper: searchSelectRef}" ref="el") {{value && value.length ? `已选择${value.length}项` : '请选择'}}
-  button(@click="clickHandle") 查询
+div.h-full.flex.jusitify-center.items-center
+  button(class="w-80 py-1.5 mx-auto border rounded" @click="clickHandle($event.currentTarget)") {{value.length ? `已选择${value.length}项` : '请选择'}}
 
-  a-popper(ref="searchSelectRef" :reference="$refs.el")
-    a-search-select(v-model="value" :options="options" :search="true" :multiple="true" :status="status" @update="updateHandle")
-      button(v-if="status === 1" class="p-1 text-sm" @click="updateHandle") 更多...
-      div.flex.items-center.justify-center(v-if="status === 2" class="p-1 text-sm") 加载中
-        svg(viewBox="0 0 24 24" width="20" height="20" class="ml-1")
-          path(fill="none" d="M0 0h24v24H0z")
-          path(d="M3.055 13H5.07a7.002 7.002 0 0 0 13.858 0h2.016a9.001 9.001 0 0 1-17.89 0zm0-2a9.001 9.001 0 0 1 17.89 0H18.93a7.002 7.002 0 0 0-13.858 0H3.055z")
+  //a-search-select(
+  //  v-if="visible"
+  //  v-model="value"
+  //  :options="options"
+  //  :search="true"
+  //  :multiple="true"
+  //  :status="status"
+  //)
+  //  button(v-if="status === 1" class="p-1 text-sm" @click="updateHandle") 更多...
+  //  div.flex.items-center.justify-center(v-if="status === 2" class="p-1 text-sm") 加载中
+  //    svg(viewBox="0 0 24 24" width="20" height="20" class="ml-1")
+  //      path(fill="none" d="M0 0h24v24H0z")
+  //      path(d="M3.055 13H5.07a7.002 7.002 0 0 0 13.858 0h2.016a9.001 9.001 0 0 1-17.89 0zm0-2a9.001 9.001 0 0 1 17.89 0H18.93a7.002 7.002 0 0 0-13.858 0H3.055z")
 </template>
 
 <script>
-import {reactive, toRefs, watch} from 'vue'
+import {inject, reactive, toRefs} from 'vue'
 
 import ASearchSelect from '../../components/elements/a-search-select.vue'
 import APopper from '../../components/elements/a-popper.vue'
-import popper from '../../directives/popper'
 
 export default {
-  directives: {
-    popper,
-  },
-
   components: {
     ASearchSelect,
     APopper,
   },
 
   setup (props) {
+    const useLayer = inject('mainLayer')
+    const {show: showSearchSelect, hide: hideSearchSelect} = useLayer.mainLayer('a-search-select', ASearchSelect)
+
+    const refs = reactive({
+      refEl: null,
+    })
+
     const state = reactive({
-      value: null,
-      showSelect: false,
+      value: [],
       status: 1,
-      searchSelectRef: null,
-      el: undefined,
+      visible: false,
     })
 
     const options = [
@@ -44,8 +49,26 @@ export default {
       ['c', 'C'],
     ].concat(Array.from({length: 20}).map((it, idx) => [idx, idx + '_' + String(Math.random()) + String(Math.random())]))
 
-    function clickHandle () {
-      console.log(state.value)
+    function clickHandle (refEl) {
+      refs.refEl = refEl
+      state.visible = true
+      showSearchSelect({
+        name: 'a-search-select',
+        props: {
+          refEl,
+          visible: true,
+          options: options,
+          search: true,
+          multiple: true,
+          status: state.status,
+        },
+        listeners: {
+          'update:modelValue': value => {
+            state.value = value
+            hideSearchSelect()
+          },
+        },
+      })
     }
 
     function updateHandle () {
@@ -53,6 +76,7 @@ export default {
     }
 
     return {
+      ...toRefs(refs),
       ...toRefs(state),
       options,
 

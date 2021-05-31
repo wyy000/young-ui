@@ -1,39 +1,56 @@
 <template lang="pug">
-div(v-show="state.show" class="w-80 border flex flex-col")
-  input(v-model="state.keyword" v-if="search" placeholder="search..." class="m-2 p-1 border")
-  div(v-if="multiple" class="flex m-2 mt-0 p-1 border text-center text-sm divide-x")
-    button(@click="selectAllHandle" class="flex-1 focus:outline-none") {{refSelectedAll ? '取消全选' : '全选'}}
-    button(@click="state.showSelected = !state.showSelected" class="flex-1 focus:outline-none")
-      span(:class="[{'text-emerald-500': !state.showSelected}]") 全部
-      span(class="text-base")  /
-      span(:class="[{'text-emerald-500': state.showSelected}]") {{refShowSelectedNum}}
-  div(class="max-h-60 overflow-y-auto")
-    div(v-for="([value, item, check], idx) of data" :class="['relative p-1', check ? 'bg-emerald-500 text-white' : 'text-black']" @click="data = value")
-      svg(v-show="check" viewBox="0 0 24 24" width="24" height="24" fill="currentColor" class="absolute insert")
-        path(fill="none" d="M0 0h24v24H0z")
-        path(d="M10 15.172l9.192-9.193 1.415 1.414L10 18l-6.364-6.364 1.414-1.414z")
-      button(:class="['w-full pl-8 text-left break-all focus:outline-none']") {{item}}
-  template(v-if="status && !state.showSelected")
-    slot(v-if="$slots && Object.keys($slots).length")
-    template(v-else="")
-      button(v-if="status === STATUS_DEFAULT" @click="$emit('update')") 加载更多
-      div(v-if="status === STATUS_PROGRESS") 加载中...
-  div(v-if="multiple" class="flex p-1 border-t text-center text-sm divide-x")
-    button(@click="$emit('update:modelValue', state.data.filter(it => it[2]))" class="flex-1 focus:outline-none") 确定
-    button(@click="cancel" class="flex-1 focus:outline-none") 取消
+a-popper(
+  v-model:visible="state.visible"
+  :reference="refEl"
+  placement="bottom-start"
+  :offset="[0, 2]"
+  class="min-width bg-white shadow-md"
+)
+  div(class="w-80 border bg-white flex flex-col")
+    input(v-model="state.keyword" v-if="search" placeholder="search..." class="m-2 p-1 border")
+    div(v-if="multiple" class="flex m-2 mt-0 p-1 border text-center text-sm divide-x")
+      button(@click="selectAllHandle" class="flex-1 focus:outline-none") {{refSelectedAll ? '取消全选' : '全选'}}
+      button(@click="state.showSelected = !state.showSelected" class="flex-1 focus:outline-none")
+        span(:class="[{'text-emerald-500': !state.showSelected}]") 全部
+        span(class="text-base")  /
+        span(:class="[{'text-emerald-500': state.showSelected}]") {{refShowSelectedNum}}
+    div(class="max-h-60 overflow-y-auto")
+      div(v-for="([value, item, check], idx) of data" :class="['relative p-1', check ? 'bg-emerald-500 text-white' : 'text-black']" @click="data = value")
+        svg(v-show="check" viewBox="0 0 24 24" width="24" height="24" fill="currentColor" class="absolute insert")
+          path(fill="none" d="M0 0h24v24H0z")
+          path(d="M10 15.172l9.192-9.193 1.415 1.414L10 18l-6.364-6.364 1.414-1.414z")
+        button(:class="['w-full pl-8 text-left break-all focus:outline-none']") {{item}}
+    template(v-if="status && !state.showSelected")
+      slot(v-if="$slots && Object.keys($slots).length")
+      template(v-else="")
+        button(v-if="status === STATUS_DEFAULT" @click="$emit('update')") 加载更多
+        div(v-if="status === STATUS_PROGRESS") 加载中...
+    div(v-if="multiple" class="flex p-1 border-t text-center text-sm divide-x")
+      button(@click="$emit('update:modelValue', state.data.filter(it => it[2]).map(it => it[0]))" class="flex-1 focus:outline-none") 确定
+      button(@click="cancel" class="flex-1 focus:outline-none") 取消
 </template>
 
 <script>
-import {computed, reactive, watch} from 'vue'
+import {computed, onBeforeUnmount, reactive, watch} from 'vue'
+
+import APopper from '@/components/elements/a-popper.vue'
 
 const STATUS_COMPLETE = 0
 const STATUS_DEFAULT = 1
 const STATUS_PROGRESS = 2
 
 export default {
-  emits: ['update'],
+  emits: ['update', 'update:modelValue'],
+
+  components: {
+    APopper,
+  },
 
   props: {
+    refEl: {
+      type: HTMLElement,
+      required: true,
+    },
     options: {
       type: Array,
       default: () => [],
@@ -58,12 +75,14 @@ export default {
 
   setup (props, {emit}) {
     const state = reactive({
-      show: true,
+      visible: true,
       data: [],
       keyword: null,
       selectedAll: false,
       showSelected: false,
     })
+
+    onBeforeUnmount(() => state.visible = false)
 
     watch(() => props.options, value => {
       state.data = value.map(item => {

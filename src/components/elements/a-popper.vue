@@ -1,13 +1,15 @@
 <template lang="pug">
-div(:ref="comp" v-if="visibleRef" data-prevent-clickaway)
+div(ref="comp" v-if="visible" data-prevent-clickaway)
   slot
 </template>
 
 <script>
-import {computed, reactive, toRefs, watch} from 'vue'
+import {computed, defineComponent, nextTick, reactive, toRefs, onUpdated, watch} from 'vue'
 import {createPopper} from '@popperjs/core'
 
-export default {
+import {onClickaway} from '@/utils'
+
+export default defineComponent({
   props: {
     visible: {
       type: Boolean,
@@ -17,31 +19,83 @@ export default {
       type: [Element, Object],
       default: undefined,
     },
+    placement: {
+      type: String,
+      default: 'bottom',
+    },
+    strategy: {
+      type: String,
+      default: 'absolute',
+    },
+    offset: {
+      type: [Array, Function],
+      default: undefined,
+    },
+    modifiers: {
+      type: Array,
+      default: () => [],
+    },
   },
 
-  setup (props) {
+  setup (props, {emit}) {
     const refs = reactive({
       comp: undefined,
     })
     const refElement = computed(() => props.reference?._isVue ? props.reference.$el : props.reference)
 
-    console.log(props, refElement.value, refs, 9090)
-    createPopper(refElement.value, refs.comp)
+    let popper
+    let height = 0
+    let stopClickaway
+    watch(() => props.visible, async visible => {
+      if (visible) {
+        await nextTick()
+        create()
+      } else {
+        hide()
+      }
+    }, {immediate: true})
 
-    const visibleRef = computed(() => props.visible)
+    function create () {
+      popper = createPopper(refElement.value, refs.comp, {
+        placement: props.placement,
+        strategy: props.strategy,
+        modifiers: props.modifiers.concat(props.offset ? {
+          name: 'offset',
+          options: {offset: props.offset},
+        } : []),
+      })
+      console.log(refElement.value, refs.comp)
+      stopClickaway = onClickaway(hide)
+    }
 
-    const comp = computed({
-      get: () => refs.comp,
-      set: value => refs.comp = value,
+    function hide () {
+      if (popper) destroy()
+      height = 0
+      emit('update:visible', false)
+    }
+
+    function destroy () {
+      popper.destroy()
+      popper = undefined
+      if (stopClickaway) {
+        stopClickaway()
+        stopClickaway = undefined
+      }
+    }
+
+    onUpdated(async () => {
+      await nextTick()
+      let _height = refs.comp?.offsetHeight ?? 0
+      if (_height !== height) {
+        height = _height
+        popper?.update()
+      }
     })
 
-    watch(() => refs.comp, value => console.log(value), {immediate: true})
-
     return {
-      visibleRef,
-
-      comp,
+      ...toRefs(refs),
+      getPopper: () => popper,
     }
-  }
-}
+  },
+})
 </script>

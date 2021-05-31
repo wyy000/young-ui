@@ -1,5 +1,5 @@
 <template lang="pug">
-div(class="w-page mx-auto divide-y flex flex-col flex-none justify-around")
+div(class="w-page m-4 mx-auto divide-y flex flex-col flex-none justify-around")
   y-card
     div size: xs sm md lg
     div kind: primary warn error success

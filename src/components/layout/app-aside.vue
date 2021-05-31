@@ -2,8 +2,7 @@
 div(class="reactive flex flex-none")
   aside(v-if="aside === 'left'" class="w-60")
     slot(name="aside")
-  div(class="flex-1")
-    slot
+  slot
   aside(v-if="aside === 'right'" class="w-60")
     slot(name="aside")
 </template>
