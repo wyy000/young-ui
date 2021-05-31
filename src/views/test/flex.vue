@@ -1,5 +1,6 @@
 <template lang="pug">
-h1.text-center flex-test
+y-card.mx-auto.mb-2.w-page
+  h1 flex-width-test 🍖
 div.flex.flex-col.space-y-2
   section.mx-auto.w-page.p-2.bg-coolGray-200
     h1 width-auto
@@ -34,3 +35,13 @@ div.flex.flex-col.space-y-2
     div.border.border-emerald-500.flex.wrap.items-start
       div(v-for="(it, idx) of 8" :class="[idx === 3 ? `h-${(idx+1)*4}` : '', 'flex-1 bg-emerald-500']") {{it}}
 </template>
+
+<script>
+import YCard from '@/components/element/y-card.vue'
+
+export default {
+  components: {
+    YCard,
+  }
+}
+</script>

@@ -1,6 +1,6 @@
 <template lang="pug">
 div.text-center.flex.flex-col.space-y-2
-  y-button(@click="clickHandle('default')") default
+  y-button(@click="clickHandle('info')") info
   y-button(@click="clickHandle('success')") success
   y-button(@click="clickHandle('warn')") warn
   y-button(@click="clickHandle('error')") error
