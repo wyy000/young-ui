@@ -2,8 +2,7 @@
 app-aside.h-full
   template(#aside)
     div(class="h-full border-r border-emerald-500 text-center divide-y flex flex-col")
-      router-link(to="/documents/cell-table" class="py-2") cell-table
-      router-link(to="/documents/row-table" class="py-2") row-table
+      router-link(v-for="it of nav" :to="`/documents/${it.path}`" class="py-2") {{it.path}}
   div.h-full.flex.flex-col
     app-header.flex
       div(class="flex-1 flex items-center justify-between")
@@ -24,10 +23,13 @@ app-aside.h-full
 </template>
 
 <script>
+import {ref} from 'vue'
 import AppHeader from "@/components/layout/app-header.vue"
 import AppFooter from "@/components/layout/app-footer.vue"
 import AppAside from "@/components/layout/app-aside.vue"
 import YSearch from "@/components/doc/y-search.vue"
+
+import navList from '@/router/document'
 
 export default {
   components: {
@@ -35,6 +37,14 @@ export default {
     AppAside,
     AppFooter,
     AppHeader
+  },
+
+  setup () {
+    const nav = ref(navList)
+
+    return {
+      nav,
+    }
   },
 }
 </script>

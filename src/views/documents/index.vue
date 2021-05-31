@@ -18,10 +18,6 @@ export default {
     AppModalLayer,
     AppMessageLayer,
   },
-
-  setup () {
-
-  },
 }
 </script>
 
