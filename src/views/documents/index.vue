@@ -15,7 +15,6 @@ div(class="relative h-screen overflow-hidden text-base")
 import AppMainLayer from "@/components/app/app-main-layer.vue"
 import AppModalLayer from "@/components/app/app-modal-layer.vue"
 import AppMessageLayer from "@/components/app/app-message-layer.vue"
-import AppFloatLayer from "../../components/app/app-float-layer.vue"
 
 import {defineComponent, markRaw, provide, reactive, toRefs, watch} from 'vue'
 
@@ -24,9 +23,7 @@ export default defineComponent({
     AppMainLayer,
     AppModalLayer,
     AppMessageLayer,
-    AppFloatLayer,
   },
-}
 
   setup () {
     const state = reactive({

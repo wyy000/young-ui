@@ -28,7 +28,7 @@ app-aside.h-full
 </template>
 
 <script>
-import {inject, reactive, ref, toRefs, watch} from 'vue'
+import {computed, inject, reactive, ref, toRefs, watch} from 'vue'
 
 import AppHeader from "@/components/layout/app-header.vue"
 import AppFooter from "@/components/layout/app-footer.vue"
@@ -63,14 +63,16 @@ export default {
       scrollBox: null,
     })
 
+    const menuList = computed(() => nav.value.map(it => Object.assign(it, {path: `/documents/${it.path}`, name: it.path})))
+
     watch(() => state.keyword, value => {
       if (!value) return
-      const index = nav.value.findIndex(it => it.path === value) ?? nav.value.findIndex(it => RegExp(value, 'ig').test(it.path))
+      const index = menuList.value.findIndex(it => it.path === value) ?? menuList.value.findIndex(it => RegExp(value, 'ig').test(it.path))
       if (index) {
         const $el = state.menuDom.$el
         const height = $el.offsetHeight
-        console.log(height, $el.getBoundingClientRect(), $el.scrollTop, $el.getBoundingClientRect().height / nav.value.length * index, state.scrollBox)
-        state.scrollBox.scrollTop = $el.getBoundingClientRect().height / nav.value.length * index
+        console.log(height, $el.getBoundingClientRect(), $el.scrollTop, $el.getBoundingClientRect().height / menuList.value.length * index, state.scrollBox)
+        state.scrollBox.scrollTop = $el.getBoundingClientRect().height / menuList.value.length * index
       }
 
       console.log(state.menuDom.$el)
