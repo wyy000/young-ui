@@ -1,24 +1,26 @@
 <template lang="pug">
-div.h-full.flex.jusitify-center.items-center
+div.h-full.flex.items-start
   button(class="w-80 py-1.5 mx-auto border rounded" @click="clickHandle($event.currentTarget)") {{value?.length ? `已选择${value.length}项` : '请选择'}}
 
-  //a-search-select(
-  //  v-if="visible"
-  //  v-model="value"
-  //  :options="options"
-  //  :search="true"
-  //  :multiple="true"
-  //  :status="status"
-  //)
-  //  button(v-if="status === 1" class="p-1 text-sm" @click="updateHandle") 更多...
-  //  div.flex.items-center.justify-center(v-if="status === 2" class="p-1 text-sm") 加载中
-  //    svg(viewBox="0 0 24 24" width="20" height="20" class="ml-1")
-  //      path(fill="none" d="M0 0h24v24H0z")
+  a-search-select(
+    v-if="visible"
+    v-model="value"
+    v-model:visible="visible"
+    :refEl="refEl"
+    :multiple="true"
+    :options="options"
+    :search="true"
+    :status="status"
+  )
+    //button(v-if="status === 1" class="mx-auto p-2 text-sm" @click="updateHandle") 更多...
+    //div.flex.items-center.justify-center(v-if="status === 2" class="mx-auto p-1 text-sm") 加载中
+      svg(viewBox="0 0 24 24" width="20" height="20" class="ml-1")
+        path(fill="none" d="M0 0h24v24H0z")
         path(d="M3.055 13H5.07a7.002 7.002 0 0 0 13.858 0h2.016a9.001 9.001 0 0 1-17.89 0zm0-2a9.001 9.001 0 0 1 17.89 0H18.93a7.002 7.002 0 0 0-13.858 0H3.055z")
 </template>
 
 <script>
-import {inject, reactive, toRefs} from 'vue'
+import {inject, reactive, toRefs, watch} from 'vue'
 
 import ASearchSelect from '../../components/elements/a-search-select.vue'
 import APopper from '../../components/elements/a-popper.vue'
@@ -30,8 +32,7 @@ export default {
   },
 
   setup (props) {
-    const useLayer = inject('mainLayer')
-    const {show: showSearchSelect, hide: hideSearchSelect} = useLayer.mainLayer('a-search-select', ASearchSelect)
+    inject('mainLayer')
 
     const refs = reactive({
       refEl: null,
@@ -43,6 +44,8 @@ export default {
       visible: false,
     })
 
+    watch(() => state.value, () => state.visible = false, {immediate: true})
+
     const options = [
       ['a', 'A'],
       ['b', 'B'],
@@ -52,24 +55,6 @@ export default {
     function clickHandle (refEl) {
       refs.refEl = refEl
       state.visible = true
-      showSearchSelect({
-        name: 'a-search-select',
-        props: {
-          refEl,
-          visible: true,
-          options: options,
-          search: true,
-          multiple: true,
-          status: state.status,
-        },
-        listeners: {
-          'update:modelValue': value => {
-            state.value = value
-            hideSearchSelect()
-          },
-          'update': () => hideSearchSelect(),
-        },
-      })
     }
 
     function updateHandle () {
