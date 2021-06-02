@@ -1,6 +1,15 @@
 <template lang="pug">
-div.h-full.flex.items-start
-  button(class="w-80 py-1.5 mx-auto border rounded" @click="clickHandle($event.currentTarget)") {{value?.length ? `已选择${value.length}项` : '请选择'}}
+div.h-full.flex.flex-col.space-y-4
+  y-card(class="bg-coolGray-800 text-coolGray-300 text-sm")
+    table(class="w-full table-fixed")
+      thead
+        tr
+          th(v-for="it of column" :key="it" class="pb-2") {{it}}
+      tbody
+        tr(v-for="(item, idx) of propsData" :key="idx")
+          td(v-for="it of column" class="p-1") {{item[it]}}
+  div.flex.items-start
+    button(class="w-80 py-1.5 mx-auto border rounded" @click="clickHandle($event.currentTarget)") {{value?.length ? `已选择${value.length}项` : '请选择'}}
 
   a-search-select(
     v-if="visible"
@@ -25,15 +34,25 @@ import {inject, reactive, toRefs, watch} from 'vue'
 
 import ASearchSelect from '../../components/elements/a-search-select.vue'
 import APopper from '../../components/elements/a-popper.vue'
+import YCard from '../../components/element/y-card.vue'
 
 export default {
   components: {
     ASearchSelect,
     APopper,
+    YCard,
   },
 
   setup (props) {
     inject('mainLayer')
+
+    const column = ['name', 'type', 'required', 'default']
+    const propsData = Object.entries(ASearchSelect.props).map(item => ({
+      name: item[0],
+      type: Array.isArray(item[1].type) ? item[1].type.map(it => it.name).join(',') : item[1].type?.name,
+      required: item[1].required ?? false,
+      default: item[1].default,
+    }))
 
     const refs = reactive({
       refEl: null,
@@ -67,9 +86,24 @@ export default {
       ...toRefs(state),
       options,
 
+      column,
+      propsData,
+
       clickHandle,
       updateHandle,
     }
   },
 }
 </script>
+
+<style lang="scss" scoped>
+tbody tr {
+  &:hover {
+    @apply text-white bg-emerald-900;
+  }
+
+  td {
+    @apply border border-coolGray-500;
+  }
+}
+</style>
