@@ -14,16 +14,16 @@ a-popper(
         span(:class="[{'text-emerald-500': !state.showSelected}]") 全部
         span(class="text-base")  /
         span(:class="[{'text-emerald-500': state.showSelected}]") {{refShowSelectedNum}}
-    div(class="max-h-60 overflow-y-auto") {{Object.values($slots).every(it => !it)}} {{Object.values($slots)}}
+    div(class="max-h-60 overflow-y-auto")
       div(v-for="([value, item, check], idx) of data" :class="['relative p-1', check ? 'bg-emerald-500 text-white' : 'text-black']" @click="data = value")
         svg(v-show="check" viewBox="0 0 24 24" width="24" height="24" fill="currentColor" class="absolute insert")
           path(fill="none" d="M0 0h24v24H0z")
           path(d="M10 15.172l9.192-9.193 1.415 1.414L10 18l-6.364-6.364 1.414-1.414z")
         button(:class="['w-full pl-8 text-left break-all focus:outline-none']") {{item}}
       template(v-if="status && !state.showSelected")
-        slot(v-if="haveSlots")
-        div(v-else="" class="p-0.5 text-center")
-          button(v-if="status === STATUS_DEFAULT" class="focus:outline-none" @click="$emit('update')") 加载更多
+        slot(v-if="Object.values($slots).length")
+        div(v-else="" class="p-1.5 text-center text-sm")
+          button(v-if="status === STATUS_DEFAULT" class="focus:outline-none" @click="$emit('update')") 加载更多...
           span(v-if="status === STATUS_PROGRESS") 加载中...
     div(v-if="multiple" class="flex p-1 border-t text-center text-sm divide-x")
       button(@click="$emit('update:modelValue', state.data.filter(it => it[2]).map(it => it[0]))" class="p-1 flex-1 focus:outline-none") 确定
@@ -31,7 +31,7 @@ a-popper(
 </template>
 
 <script>
-import {computed, onBeforeUnmount, reactive, watch} from 'vue'
+import {computed, reactive, watch} from 'vue'
 
 import APopper from '@/components/elements/a-popper.vue'
 
@@ -77,7 +77,7 @@ export default {
     },
   },
 
-  setup (props, {emit, slots}) {
+  setup (props, {emit}) {
     const visibleRef = computed({
       get: () => props.visible,
       set: value => emit('update:visible', value)
@@ -111,10 +111,6 @@ export default {
       },
     })
 
-    const haveSlots = computed(() => {
-      return slots.value
-    })
-
     function selectAllHandle () {
       state.selectedAll = !state.selectedAll
       data.value.forEach(item => {
@@ -142,7 +138,6 @@ export default {
 
       data,
       state,
-      haveSlots,
       refSelectedAll,
       refShowSelected,
       refShowSelectedNum,

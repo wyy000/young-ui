@@ -12,8 +12,9 @@ div.h-full.flex.items-start
     :search="true"
     :status="status"
   )
-    //button(v-if="status === 1" class="mx-auto p-2 text-sm" @click="updateHandle") 更多...
-    //div.flex.items-center.justify-center(v-if="status === 2" class="mx-auto p-1 text-sm") 加载中
+    div(v-if="status === 1" class="text-center text-sm")
+      button(class="p-2 focus:outline-none" @click="updateHandle") 更多...
+    div.flex.items-center.justify-center(v-if="status === 2" class="mx-auto p-1 text-sm") 加载中
       svg(viewBox="0 0 24 24" width="20" height="20" class="ml-1")
         path(fill="none" d="M0 0h24v24H0z")
         path(d="M3.055 13H5.07a7.002 7.002 0 0 0 13.858 0h2.016a9.001 9.001 0 0 1-17.89 0zm0-2a9.001 9.001 0 0 1 17.89 0H18.93a7.002 7.002 0 0 0-13.858 0H3.055z")
