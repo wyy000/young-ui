@@ -1,5 +1,5 @@
 <template lang="pug">
-div.h-full.flex(ref="refEl") {{drawSize.height}} {{drawSize.width}}
+div.h-full.flex(ref="refEl")
   svg(class="w-full h-full border" fill="#222429")
     g
       rect(x="0" y="0" :width="drawSize.width / 2" :height="drawSize.height / 2" fill="#222429")
@@ -10,16 +10,19 @@ div.h-full.flex(ref="refEl") {{drawSize.height}} {{drawSize.width}}
       line(v-for="it of horizontalLine" :x1="it.x1" :x2="it.x2" :y1="it.y1" :y2="it.y2" stroke="#aaa" stroke-width="1" stroke-dasharray="1 2")
     g
       line(v-for="it of verticalLine" :x1="it.x1" :x2="it.x2" :y1="it.y1" :y2="it.y2" stroke="#aaa" stroke-width="1" stroke-dasharray="1 2")
-    g(v-for="it of refData")
-      circle(r="5" :fill="randomColor()" :transform="circleTranslate(it)" @mouseover="it.hover = true" @mouseleave="it.hover = true")
-      text {{it.hover}}
-    g(v-for="it of refData" v-show="it.hover")
-      line(x1="0" :x2="it.x" :y1="it.y" :y2="it.y" stroke="#5c6069" opacity="0.7" stroke-width="3" stroke-dasharray="8 3")
-      line(:x1="it.x" :x2="it.x" y1="20000" :y2="it.y" stroke="#5c6069" opacity="0.7" stroke-width="3" stroke-dasharray="8 3")
+    g(v-for="it of refData" :class="[{'z-1': it.hover}, {'opacity-40': !it.hover && refData.some(it => it.hover)}]")
+      g(v-show="it.hover")
+        line(x1="0" :x2="it.x" :y1="it.y" :y2="it.y" stroke="#5c6069" opacity="0.7" stroke-width="3" class="animation-line")
+        line(:x1="it.x" :x2="it.x" y1="20000" :y2="it.y" stroke="#5c6069" opacity="0.7" stroke-width="3" class="animation-line")
+      g(:transform="circleTranslate(it)")
+        text(fill="#fff" transform="translate(15, 4)" :class="['text-xs', {'opacity-50': !it.hover}]") {{it.title}}
+        circle(v-show="it.hover" r="12" fill="#5c6069" opacity="0.7")
+        circle(v-show="it.hover" r="9" fill="#000" opacity="0.7")
+        circle(r="5" :fill="it.color" @mouseover="it.hover = true" @mouseleave="it.hover = false")
 </template>
 
 <script>
-import {computed, onMounted, reactive, toRefs} from 'vue'
+import {computed, onMounted, onUpdated, reactive, toRefs, watch} from 'vue'
 
 export default {
   props: {
@@ -29,24 +32,38 @@ export default {
     },
   },
 
-  setup (props) {
+  setup(props) {
     const refs = reactive({
       refEl: null,
     })
     console.log(props.data)
 
-    const drawSize = computed(() => ({
-      width: refs.refEl?.offsetWidth ?? 0,
-      height: refs.refEl?.offsetHeight ?? 0,
-    }))
+    const drawSize = reactive({
+      width: 0,
+      height: 0,
+    })
+
+    onMounted(() => {
+      window.onresize = function () {
+        drawSize.width = refs.refEl?.offsetWidth
+        drawSize.height = refs.refEl?.offsetHeight
+      }
+    })
+
+    onUpdated(() => {
+      drawSize.width = refs.refEl?.offsetWidth
+      drawSize.height = refs.refEl?.offsetHeight
+    })
+
+    watch(() => drawSize, value => console.log(value))
 
     const horizontalLine = computed(() => {
       if (refs.refEl) {
         return Array.from({length: 11}).map((it, idx) => ({
           x1: 0,
-          x2: drawSize.value.width,
-          y1: parseInt(drawSize.value.height / 10 * idx),
-          y2: parseInt(drawSize.value.height / 10 * idx),
+          x2: drawSize.width,
+          y1: parseInt(drawSize.height / 10 * idx),
+          y2: parseInt(drawSize.height / 10 * idx),
         }))
       }
     })
@@ -54,30 +71,31 @@ export default {
     const verticalLine = computed(() => {
       if (refs.refEl) {
         return Array.from({length: 11}).map((it, idx) => ({
-          x1: parseInt(drawSize.value.width / 10 * idx),
-          x2: parseInt(drawSize.value.width / 10 * idx),
+          x1: parseInt(drawSize.width / 10 * idx),
+          x2: parseInt(drawSize.width / 10 * idx),
           y1: 0,
-          y2: drawSize.value.height,
+          y2: drawSize.height,
         }))
       }
     })
 
     const refData = computed(() => {
       return props.data.map(it => {
-        it.x = it.count / 20000 * drawSize.value.width
-        it.y = drawSize.value.height * it.percent / 100
+        it.x = it.count / 20000 * drawSize.width
+        it.y = drawSize.height * it.percent / 100
         it.hover = false
+        it.color = randomColor()
         return it
       })
     })
 
-    function circleTranslate (it) {
+    function circleTranslate(it) {
       if (refs.refEl) {
-        return `translate(${drawSize.value.width * it.count / 20000}, ${drawSize.value.height * it.percent / 100})`
+        return `translate(${drawSize.width * it.count / 20000}, ${drawSize.height * it.percent / 100})`
       }
     }
 
-    function randomColor () {
+    function randomColor() {
       const str = Array.from({length: 10}).map((it, idx) => String(idx)).concat(['a', 'b', 'c', 'd', 'e', 'f'])
       const range = parseInt(73 + Math.random() * (246 - 73))
       const arr = ['49', 'f6', str[parseInt(range / 16)] + str[parseInt(range % 16)]]
@@ -96,7 +114,6 @@ export default {
 
       drawSize,
 
-      randomColor,
       circleTranslate,
     }
   },
@@ -104,5 +121,15 @@ export default {
 </script>
 
 <style scoped>
+.animation-line {
+  stroke-dasharray: 8 3;
+  animation: svgAnts 50s linear infinite;
+  animation-fill-mode: forwards;
+}
 
+@keyframes svgAnts {
+  to {
+    stroke-dashoffset: 100%
+  }
+}
 </style>

@@ -11,7 +11,12 @@ module.exports = {
       colors,
       spacing: {
         page: '1200px',
+        '1/2h': '50vh',
+        '2/3h': '66vh',
       },
+      animation: {
+        'line-move': 'svgAnts 50s linear infinite',
+      }
     },
   },
   variants: {

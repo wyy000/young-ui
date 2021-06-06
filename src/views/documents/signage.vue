@@ -1,5 +1,5 @@
 <template lang="pug">
-div(class="w-1/2" style="height: 500px;")
+div(class="w-full h-2/3h")
   y-card(class="w-full h-full flex flex-col")
     section.p-1
       h1 Signage Demo
