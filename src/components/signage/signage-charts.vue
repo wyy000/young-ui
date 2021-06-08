@@ -22,7 +22,7 @@ div.h-full.flex(ref="refEl")
 </template>
 
 <script>
-import {computed, onMounted, onUpdated, reactive, toRefs, watch} from 'vue'
+import {computed, onMounted, onUpdated, reactive, toRefs} from 'vue'
 
 export default {
   props: {
@@ -36,7 +36,6 @@ export default {
     const refs = reactive({
       refEl: null,
     })
-    console.log(props.data)
 
     const drawSize = reactive({
       width: 0,
@@ -54,8 +53,6 @@ export default {
       drawSize.width = refs.refEl?.offsetWidth
       drawSize.height = refs.refEl?.offsetHeight
     })
-
-    watch(() => drawSize, value => console.log(value))
 
     const horizontalLine = computed(() => {
       if (refs.refEl) {
@@ -103,8 +100,6 @@ export default {
       const two = Math.random() > 1 / 2 ? arr.splice(0, 1) : arr.splice(1, 1)
       return `#${one[0]}${two[0]}${arr[0]}`
     }
-
-    onMounted(() => console.log(refs.refEl))
 
     return {
       ...toRefs(refs),
