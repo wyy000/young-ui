@@ -14,11 +14,11 @@ y-card(class="w-full flex-shrink-0 flex flex-col overflow-auto" style="height: 8
       leave-active-class="transition-all duration-500 ease-in-out"
       @before-enter="el => {el.style.height = '0px'}"
       @enter="el => {el.style.flexBasis = el.children[0].offsetHeight + 'px';el.style.flexShrink = 0;}"
-      @after-enter="() => computedAxisInfo()"
       @leave="el => {el.style.height = '0px'; el.style.flexBasis = '0px'}"
-      @after-leave="() => computedAxisInfo()"
     )
       trigger-chart-conditions(:chartData="chartData" :show="showConditions")
+      //@after-enter="() => computedAxisInfo()"
+      //@after-leave="() => computedAxisInfo()"
     div(class="flex-1 flex" ref="axisEl" style="min-height: 50vh")
       svg(class="p-0 flex-1 border")
         chart-axis(:width="axisInfo.width" :height="axisInfo.height" :x="axisInfo.x"  :y="axisInfo.y" :xRange="axisInfo.xRange" :yRange="axisInfo.yRange")
@@ -26,7 +26,15 @@ y-card(class="w-full flex-shrink-0 flex flex-col overflow-auto" style="height: 8
 </template>
 
 <script>
-import {defineComponent, reactive, ref, toRefs, onUpdated, onMounted} from 'vue'
+import {
+  defineComponent,
+  reactive,
+  ref,
+  toRefs,
+  onUpdated,
+  onMounted,
+  onBeforeUnmount,
+} from 'vue'
 
 import YCard from '@/components/element/y-card.vue'
 import ChartAxis from '@/components/signage/chart-axis.vue'
@@ -77,16 +85,26 @@ export default defineComponent({
       xRange: [100, 1000],
     })
 
+    let resizeObserver = null
+
     onMounted(() => {
-      computedAxisInfo()
-      window.onresize = function () {
+      // computedAxisInfo()
+      // window.onresize = function () {
+      //   computedAxisInfo()
+      // }
+      resizeObserver = new ResizeObserver(() => {
         computedAxisInfo()
-      }
+      })
+      resizeObserver.observe(refs.axisEl)
     })
 
-    onUpdated(() => {
-      computedAxisInfo()
+    onBeforeUnmount(() => {
+      resizeObserver.unobserve(refs.axisEl)
     })
+
+    // onUpdated(() => {
+    //   computedAxisInfo()
+    // })
 
     function computedAxisInfo () {
       axisInfo.width = refs.axisEl?.offsetWidth ?? 0
@@ -99,7 +117,7 @@ export default defineComponent({
 
       axisInfo,
 
-      computedAxisInfo,
+      // computedAxisInfo,
     }
   },
 })
